@@ -11,14 +11,14 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Отправляем первый мьют
-        sendMuteKey();
+        // Первое нажатие MUTE
+        sendMute();
 
-        // Ждем 1 секунду и отправляем второй мьют
+        // Пауза 1 секунда и второе нажатие MUTE, затем выход
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                sendMuteKey();
+                sendMute();
                 
                 // Закрываем приложение
                 finish();
@@ -27,14 +27,15 @@ public class MainActivity extends Activity {
         }, 1000);
     }
 
-    private void sendMuteKey() {
+    private void sendMute() {
         try {
-            // Выполняем ту же команду, что и через ADB
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "input keyevent 164"});
+            // Пробуем вызвать системный бинарник input по точному пути
+            Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", "/system/bin/input keyevent 164"});
+            process.waitFor();
         } catch (Exception e) {
             e.printStackTrace();
             try {
-                // Запасной вариант вызова
+                // Запасной вариант через стандартную оболочку
                 Runtime.getRuntime().exec("input keyevent 164");
             } catch (Exception ex) {
                 ex.printStackTrace();
