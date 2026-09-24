@@ -1,8 +1,6 @@
 package com.mute.trigger;
 
 import android.app.Activity;
-import android.content.Context;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,14 +11,14 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Переключаем звук первый раз через системный AudioManager
-        toggleMute();
+        // Отправляем первый мьют
+        sendMuteKey();
 
-        // Пауза 1 секунда и повторное переключение (для двойного нажатия, если требуется)
+        // Ждем 1 секунду и отправляем второй мьют
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                toggleMute();
+                sendMuteKey();
                 
                 // Закрываем приложение
                 finish();
@@ -29,19 +27,18 @@ public class MainActivity extends Activity {
         }, 1000);
     }
 
-    private void toggleMute() {
+    private void sendMuteKey() {
         try {
-            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (audioManager != null) {
-                // Метод для выключения/включения звука на Android TV
-                audioManager.adjustStreamVolume(
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.ADJUST_TOGGLE_MUTE,
-                    AudioManager.FLAG_SHOW_UI
-                );
-            }
+            // Выполняем ту же команду, что и через ADB
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "input keyevent 164"});
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                // Запасной вариант вызова
+                Runtime.getRuntime().exec("input keyevent 164");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }
