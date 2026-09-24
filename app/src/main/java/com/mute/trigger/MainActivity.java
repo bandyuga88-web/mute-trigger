@@ -11,35 +11,24 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Первое нажатие MUTE
-        sendMute();
+        executeMute();
 
-        // Пауза 1 секунда и второе нажатие MUTE, затем выход
+        // Пауза 1 секунда для второго нажатия и закрытие
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                sendMute();
-                
-                // Закрываем приложение
+                executeMute();
                 finish();
                 System.exit(0);
             }
         }, 1000);
     }
 
-    private void sendMute() {
+    private void executeMute() {
         try {
-            // Пробуем вызвать системный бинарник input по точному пути
-            Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", "/system/bin/input keyevent 164"});
-            process.waitFor();
+            Runtime.getRuntime().exec("input keyevent 164");
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                // Запасной вариант через стандартную оболочку
-                Runtime.getRuntime().exec("input keyevent 164");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
         }
     }
 }
