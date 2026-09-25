@@ -1,3 +1,5 @@
+package com.mute.trigger;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,12 +17,31 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 try {
-                    // Способ 1: Прямая инъекция keyevent через диспетчеризацию активности (Instrumentation)
-                    // Это работает внутри приложений без ADB, если окно имеет фокус или через dispatch
-                    dispatchMuteKey();
+                    // Эмулируем нажатие кнопки MUTE (164) через диспетчеризацию окна
+                    getWindow().getDecorView().dispatchKeyEvent(
+                        new KeyEvent(KeyEvent.ACTION_DOWN, 164)
+                    );
+                    getWindow().getDecorView().dispatchKeyEvent(
+                        new KeyEvent(KeyEvent.ACTION_UP, 164)
+                    );
+
+                    Thread.sleep(500);
+
+                    // Второе нажатие
+                    getWindow().getDecorView().dispatchKeyEvent(
+                        new KeyEvent(KeyEvent.ACTION_DOWN, 164)
+                    );
+                    getWindow().getDecorView().dispatchKeyEvent(
+                        new KeyEvent(KeyEvent.ACTION_UP, 164)
+                    );
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    // Запасной вариант через Runtime, если окно еще не получило фокус
+                    try {
+                        Runtime.getRuntime().exec("input keyevent 164");
+                        Thread.sleep(500);
+                        Runtime.getRuntime().exec("input keyevent 164");
+                    } catch (Exception ignored) {}
                 } finally {
                     // Мгновенно выгружаем приложение из памяти
                     finishAffinity();
@@ -28,37 +49,5 @@ public class MainActivity extends Activity {
                 }
             }
         }, 6000);
-    }
-
-    private void dispatchMuteKey() {
-        try {
-            // Эмулируем нажатие и отпускание кнопки MUTE (код 164)
-            // Первое нажатие
-            Instrumentation inst = new Instrumentation();
-            // Так как Instrumentation требует потока, сделаем это через dispatch
-            getWindow().getDecorView().dispatchKeyEvent(
-                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MUTE)
-            );
-            getWindow().getDecorView().dispatchKeyEvent(
-                new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MUTE)
-            );
-
-            Thread.sleep(400);
-
-            // Второе нажатие
-            getWindow().getDecorView().dispatchKeyEvent(
-                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MUTE)
-            );
-            getWindow().getDecorView().dispatchKeyEvent(
-                new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MUTE)
-            );
-        } catch (Exception e) {
-            // Запасной вариант через стандартный Runtime, если Instrumentation недоступен в контексте Activity
-            try {
-                Runtime.getRuntime().exec("input keyevent 164");
-                Thread.sleep(400);
-                Runtime.getRuntime().exec("input keyevent 164");
-            } catch (Exception ignored) {}
-        }
     }
 }
