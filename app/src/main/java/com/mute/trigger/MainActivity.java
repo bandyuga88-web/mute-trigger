@@ -1,4 +1,4 @@
-package com.mute.trigger
+package com.mute.trigger;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
